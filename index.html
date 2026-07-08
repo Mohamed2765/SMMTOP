@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>موقع SmmTop للمستخدمين المميزين</title>
+    <title>موقع Smm Top للمستخدمين المميزين</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
@@ -492,7 +492,7 @@
             font-size: 0.95rem;
         }
 
-        /* ===== USER VIEW (العادي) ===== */
+        /* ===== USER VIEW ===== */
         #user-view .user-header {
             display: flex;
             align-items: center;
@@ -569,7 +569,6 @@
             color: var(--accent);
         }
 
-        /* ===== MAIN CONTENT ===== */
         .user-main-content {
             padding: 25px 30px;
             margin-top: 10px;
@@ -626,69 +625,6 @@
             background: rgba(255, 107, 107, 0.15);
             border-color: #FF6B6B;
             color: #FF6B6B;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 600px) {
-            .login-card {
-                padding: 35px 22px 30px;
-            }
-            .login-card .logo {
-                font-size: 2.2rem;
-            }
-            .admin-card {
-                padding: 20px 18px 24px;
-            }
-            .admin-header {
-                padding: 14px 18px;
-            }
-            #user-view .user-header {
-                padding: 12px 16px;
-            }
-            .user-credentials {
-                gap: 10px;
-            }
-            .user-credentials .cred-item {
-                padding: 4px 12px 4px 10px;
-                font-size: 0.75rem;
-            }
-            .user-welcome p {
-                font-size: 0.95rem;
-            }
-            .user-actions .btn {
-                min-width: 140px;
-                font-size: 0.9rem;
-            }
-            .user-main-content {
-                padding: 15px 16px;
-            }
-            .user-table thead th,
-            .user-table tbody td {
-                padding: 10px 8px;
-                font-size: 0.8rem;
-            }
-            .user-table .actions-cell {
-                gap: 4px;
-            }
-            .btn-xs {
-                padding: 4px 10px;
-                font-size: 0.65rem;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .admin-header .admin-actions .admin-badge {
-                font-size: 0.7rem;
-                padding: 4px 12px;
-            }
-            .btn-sm {
-                padding: 6px 14px;
-                font-size: 0.75rem;
-            }
-            .user-info-block .user-sub-text {
-                font-size: 0.7rem;
-                margin-right: 28px;
-            }
         }
 
         /* ===== TOAST ===== */
@@ -776,6 +712,69 @@
         .text-secondary {
             color: var(--text-secondary);
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .login-card {
+                padding: 35px 22px 30px;
+            }
+            .login-card .logo {
+                font-size: 2.2rem;
+            }
+            .admin-card {
+                padding: 20px 18px 24px;
+            }
+            .admin-header {
+                padding: 14px 18px;
+            }
+            #user-view .user-header {
+                padding: 12px 16px;
+            }
+            .user-credentials {
+                gap: 10px;
+            }
+            .user-credentials .cred-item {
+                padding: 4px 12px 4px 10px;
+                font-size: 0.75rem;
+            }
+            .user-welcome p {
+                font-size: 0.95rem;
+            }
+            .user-actions .btn {
+                min-width: 140px;
+                font-size: 0.9rem;
+            }
+            .user-main-content {
+                padding: 15px 16px;
+            }
+            .user-table thead th,
+            .user-table tbody td {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+            .user-table .actions-cell {
+                gap: 4px;
+            }
+            .btn-xs {
+                padding: 4px 10px;
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .admin-header .admin-actions .admin-badge {
+                font-size: 0.7rem;
+                padding: 4px 12px;
+            }
+            .btn-sm {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+            }
+            .user-info-block .user-sub-text {
+                font-size: 0.7rem;
+                margin-right: 28px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -862,7 +861,7 @@
                 <div class="user-table-wrap">
                     <table class="user-table" id="userTable">
                         <thead>
-                            <tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>الدور</th><th>إجراءات</th></tr>
+                            <tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr>
                         </thead>
                         <tbody id="userTableBody"></tbody>
                     </table>
@@ -931,15 +930,50 @@
         (function() {
             'use strict';
 
+            // ===== CONSTANTS =====
             const STORAGE_KEY = 'mpanel_users';
+            const DEVICE_KEY = 'mpanel_device_id';
             const PRESET_USERNAME = 'mohamed_el7akm';
             const PRESET_PASSWORD = 'G7#vQ2mL9@xT4pZ';
             const PRESET_EMAIL = 'admin@example.com';
 
+            // ===== STATE =====
             let currentUser = null;
             let users = [];
 
-            // DOM refs
+            // ===== DEVICE FINGERPRINT =====
+            function getDeviceId() {
+                let deviceId = localStorage.getItem(DEVICE_KEY);
+                if (!deviceId) {
+                    // توليد بصمة فريدة بناءً على معلومات المتصفح
+                    const components = [
+                        navigator.userAgent,
+                        screen.width,
+                        screen.height,
+                        screen.colorDepth,
+                        navigator.language,
+                        navigator.platform,
+                        new Date().getTimezoneOffset(),
+                        !!navigator.hardwareConcurrency,
+                        navigator.deviceMemory || ''
+                    ];
+                    const fingerprint = components.join('|||');
+                    // تشفير بسيط (hash)
+                    let hash = 0;
+                    for (let i = 0; i < fingerprint.length; i++) {
+                        const char = fingerprint.charCodeAt(i);
+                        hash = ((hash << 5) - hash) + char;
+                        hash = hash & hash; // Convert to 32bit integer
+                    }
+                    deviceId = 'DEV_' + Math.abs(hash).toString(36).toUpperCase();
+                    localStorage.setItem(DEVICE_KEY, deviceId);
+                }
+                return deviceId;
+            }
+
+            const currentDeviceId = getDeviceId();
+
+            // ===== DOM REFS =====
             const views = {
                 login: document.getElementById('login-view'),
                 admin: document.getElementById('admin-view'),
@@ -980,17 +1014,26 @@
                         username: PRESET_USERNAME,
                         password: PRESET_PASSWORD,
                         email: PRESET_EMAIL,
-                        role: 'admin'
+                        role: 'admin',
+                        deviceId: currentDeviceId // ربط المدير بهذا الجهاز
                     });
                     saveUsers();
+                } else {
+                    // تحديث deviceId للمدير إذا لم يكن موجوداً
+                    const admin = users.find(u => u.username === PRESET_USERNAME);
+                    if (admin && !admin.deviceId) {
+                        admin.deviceId = currentDeviceId;
+                        saveUsers();
+                    }
                 }
-                // إذا لم يكن هناك أي مدير، نضيفه
+                // التأكد من وجود مدير واحد على الأقل
                 if (!users.some(u => u.role === 'admin')) {
                     users.push({
                         username: PRESET_USERNAME,
                         password: PRESET_PASSWORD,
                         email: PRESET_EMAIL,
-                        role: 'admin'
+                        role: 'admin',
+                        deviceId: currentDeviceId
                     });
                     saveUsers();
                 }
@@ -1052,6 +1095,10 @@
                 sorted.forEach(user => {
                     const isAdmin = user.role === 'admin';
                     const isPreset = user.username === PRESET_USERNAME;
+                    const isLinked = !!user.deviceId;
+                    const status = isLinked ? 'مرتبط' : 'غير مرتبط';
+                    const statusColor = isLinked ? '#2ECC71' : '#FF6B6B';
+
                     html += `
                         <tr>
                             <td>
@@ -1063,10 +1110,14 @@
                             </td>
                             <td>${user.email || '—'}</td>
                             <td><span class="role-badge ${isAdmin ? 'admin' : 'user'}">${isAdmin ? 'مدير' : 'مستخدم'}</span></td>
+                            <td style="color:${statusColor};font-size:0.8rem;">
+                                <i class="fas ${isLinked ? 'fa-link' : 'fa-unlink'}"></i> ${status}
+                            </td>
                             <td>
                                 <div class="actions-cell">
                                     ${!isAdmin ? `<button class="btn btn-accent btn-xs" onclick="promoteUser('${user.username}')"><i class="fas fa-arrow-up"></i> رفع مدير</button>` : `<span style="color:var(--text-muted);font-size:0.7rem;">—</span>`}
                                     ${!isPreset ? `<button class="btn btn-danger btn-xs" onclick="deleteUser('${user.username}')"><i class="fas fa-trash"></i></button>` : `<span style="color:var(--text-muted);font-size:0.7rem;">—</span>`}
+                                    ${!isPreset && isLinked ? `<button class="btn btn-outline btn-xs" onclick="unlinkDevice('${user.username}')"><i class="fas fa-unlink"></i> فك الربط</button>` : ''}
                                 </div>
                             </td>
                         </tr>
@@ -1101,7 +1152,17 @@
                 showToast(`تم حذف المستخدم ${username}`, 'success');
             };
 
-            // دالة النسخ إلى الحافظة
+            window.unlinkDevice = function(username) {
+                const user = findUser(username);
+                if (!user) return showToast('المستخدم غير موجود', 'error');
+                if (username === PRESET_USERNAME) return showToast('لا يمكن فك ربط المدير الأساسي', 'error');
+                if (!user.deviceId) return showToast('هذا المستخدم غير مرتبط بجهاز', 'info');
+                delete user.deviceId;
+                saveUsers();
+                renderUserTable();
+                showToast(`تم فك ربط المستخدم ${username} من جهازه`, 'success');
+            };
+
             window.copyToClipboard = function(elementId) {
                 const el = document.getElementById(elementId);
                 if (!el) return;
@@ -1113,7 +1174,6 @@
                 navigator.clipboard.writeText(text).then(() => {
                     showToast('تم النسخ إلى الحافظة ✅', 'success');
                 }).catch(() => {
-                    // طريقة بديلة للنسخ
                     const textarea = document.createElement('textarea');
                     textarea.value = text;
                     document.body.appendChild(textarea);
@@ -1129,22 +1189,40 @@
                 e.preventDefault();
                 const username = loginUsername.value.trim();
                 const password = loginPassword.value.trim();
+
                 if (!username || !password) {
                     loginError.textContent = '⚠️ يرجى إدخال اسم المستخدم وكلمة المرور';
                     loginError.classList.add('show');
                     return;
                 }
+
                 const user = findUser(username);
                 if (!user) {
                     loginError.textContent = '❌ اسم المستخدم غير موجود';
                     loginError.classList.add('show');
                     return;
                 }
+
                 if (user.password !== password) {
                     loginError.textContent = '❌ كلمة المرور غير صحيحة';
                     loginError.classList.add('show');
                     return;
                 }
+
+                // التحقق من ربط الجهاز
+                if (user.deviceId && user.deviceId !== currentDeviceId) {
+                    loginError.textContent = '⚠️ هذا الحساب مرتبط بجهاز آخر، لا يمكن الدخول من هذا الجهاز';
+                    loginError.classList.add('show');
+                    return;
+                }
+
+                // إذا لم يكن مرتبطاً، نقوم بربطه بهذا الجهاز
+                if (!user.deviceId) {
+                    user.deviceId = currentDeviceId;
+                    saveUsers();
+                    showToast('تم ربط هذا الحساب بجهازك الحالي', 'info');
+                }
+
                 loginError.classList.remove('show');
                 loginError.textContent = '';
                 currentUser = user;
@@ -1155,11 +1233,9 @@
                     showView('admin');
                     showToast(`مرحباً ${user.username} 👋`, 'success');
                 } else {
-                    // عرض بيانات المستخدم
                     userDisplayName.textContent = user.username;
                     userDisplayEmail.textContent = user.email || 'لا يوجد بريد';
                     userDisplayPass.textContent = user.password;
-                    // رسالة الترحيب
                     welcomeMessage.innerHTML = `
                         <p>
                             <i class="fas fa-hand-wave" style="color: var(--primary-light); margin-left: 8px;"></i>
@@ -1201,6 +1277,7 @@
                     addUserFeedback.className = 'form-feedback error';
                     return;
                 }
+                // المستخدم الجديد غير مرتبط بأي جهاز حتى يتم تسجيل الدخول لأول مرة
                 users.push({ username, password, email, role: 'user' });
                 saveUsers();
                 renderUserTable();
@@ -1231,8 +1308,9 @@
                 loadUsers();
                 renderUserTable();
                 showView('login');
-                console.log('🔐 نظام M-Panel جاهز');
+                console.log('🔐 نظام M-Panel جاهز (ربط الجهاز)');
                 console.log(`👥 عدد المستخدمين: ${users.length}`);
+                console.log(`📱 معرف الجهاز الحالي: ${currentDeviceId}`);
             }
 
             // ===== KEYBOARD =====
